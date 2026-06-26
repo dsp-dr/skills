@@ -1,0 +1,38 @@
+#+TITLE: dsp-dr/skills — reusable Claude Code skills
+#+AUTHOR: dsp-dr
+#+DATE: 2026-06-26
+#+OPTIONS: toc:1 num:nil
+
+Reusable [[https://docs.claude.com/en/docs/claude-code][Claude Code]] skills. Each subdirectory under =skills/= is one skill
+(a =SKILL.md= with YAML frontmatter =name= + =description=, plus any helper
+scripts).
+
+* Skills
+| Skill | What it does |
+|-------+--------------|
+| [[file:skills/guile-consistency-audit/SKILL.md][guile-consistency-audit]] | Audit gmake/build/test/Makefile consistency across a family of sibling repos by driving an interactive =claude= per project in tmux. Read-only. |
+
+* Install
+Skills live under =~/.claude/skills/=. Symlink each skill from this ghq clone so
+=git pull= keeps them current:
+
+#+begin_src sh
+./install.sh            # symlink every skills/* into ~/.claude/skills/
+#+end_src
+
+Or manually:
+#+begin_src sh
+ln -s "$(ghq root)/github.com/dsp-dr/skills/skills/guile-consistency-audit" \
+      ~/.claude/skills/guile-consistency-audit
+#+end_src
+
+Get this repo with ghq:
+#+begin_src sh
+ghq get dsp-dr/skills
+#+end_src
+
+* Conventions
+- One skill per directory; =SKILL.md= frontmatter drives discovery (=name=,
+  =description=). Keep the description trigger-friendly (when to use it).
+- Helper scripts sit next to =SKILL.md= and are referenced from it.
+- No secrets, no private IPs in skills (public repo).
