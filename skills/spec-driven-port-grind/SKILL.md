@@ -56,7 +56,10 @@ Each paradigm stresses a different part of the spec:
   flush out host-specific idioms accidentally baked into the spec.
 - **Extreme-constraint** (AWK, Tcl, Io): what's *awkward or impossible* reveals
   what the spec quietly assumes about data structures. Expect many honest stubs;
-  the stub list is the deliverable.
+  the stub list is the deliverable. **A graceful bail — "this isn't reasonably
+  expressible in <lang>", with the impossibility list — is a FIRST-CLASS result,
+  not a failure.** Don't force a tortured implementation; document the wall and
+  what it implies about the spec's assumptions.
 - **Dynamic** (Python/Ruby/Perl/Clojure): the convention decisions (key types,
   int coercion) the spec must pin.
 
