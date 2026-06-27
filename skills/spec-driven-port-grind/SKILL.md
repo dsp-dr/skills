@@ -79,9 +79,43 @@ rule), control-byte injection into error transcripts, and a config-precedence
 spec/impl contradiction — plus ~18 spec clarifications. Every fix traceable to a
 port team; the typed ports' `Eq`/exhaustiveness checks caught what review missed.
 
-## Gotchas (learned)
-- `bd setup claude` **overwrites `CLAUDE.md`** — run it before writing the guide.
-- Stale `~/.cache/guile/ccache` can shadow a version banner — wrappers should
-  `--no-auto-compile` against the installed cache.
-- Some runtimes' spawn primitives crash a long-lived VM (Guile `system*`
-  SIGSEGV) — host-specific, NOT a cross-language spec rule.
+## When this works — project fit (the meta)
+This grind pays off **only for projects amenable to unit/property-based testing** —
+where the spec is expressible as *testable boundaries*:
+- **pure-ish functions** with checkable contracts (parse/encode, escape/unescape,
+  path validation, error normalization, classification);
+- properties that hold for *all inputs* — round-trip, totality, invariant,
+  partition (see `dsp-dr/pbt-polyglot`);
+- a wire/protocol you can drive deterministically (here: stdio JSON-RPC).
+
+It does **not** transfer to projects dominated by stateful UI, aesthetic/fuzzy
+output, emergent behavior, or anything you can't pin to an assertion. The tell:
+*can a fresh implementer, given only the spec, write a property that fails on a
+wrong implementation?* If yes, grind. If no, this isn't the tool — the "ports"
+would have nothing objective to converge on, so disagreement wouldn't be signal.
+The boundary layer is grindable; the agent-loop/UX surface (stubbed in every
+port) is not — which is exactly why ports stub it.
+
+## Spec-version upgrades: the cost-of-drift experiment
+Beyond fresh ports, a sharp second experiment: measure *how expensive it is to
+keep an existing codebase current with the spec*. Take ports built against
+different baseline versions and **upgrade each to the latest spec, in reverse
+order** (newest baseline first → oldest last):
+- `v4-era port → v5` (1 version of drift; cheapest),
+- `v3-era → v5`, `v2-era → v5`,
+- `v1-era → v5` (max drift; most expensive).
+
+Each upgrade is **beads-tracked** (`bd create` per conformance gap hit, `bd close`
+when resolved); the *bead count + wall-clock per step* plots the **cost-of-drift
+curve**. Reverse order means each step's findings prime the next (you learn the
+v5 deltas on the easy 1-version jump before attempting the 4-version one).
+
+Two readings:
+- a **single-version** jump (`vN-1 → vN`) = the realistic *stay-current*
+  maintenance cost — the number the per-round beads loop is designed to keep low;
+- a **multi-version** jump (`v1 → vN`) = the *skip-versions* penalty — how bad
+  drift gets when you defer upgrades.
+
+A re-run port (e.g. Janet built at v1, re-targeted to the current spec) is the
+natural max-drift anchor; pick one port per generation for the intermediate
+points. The output is a maintenance-economics datapoint, not just a pass/fail.
