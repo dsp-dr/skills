@@ -11,6 +11,7 @@ scripts).
 | Skill | What it does |
 |-------+--------------|
 | [[file:skills/guile-consistency-audit/SKILL.md][guile-consistency-audit]] | Audit gmake/build/test/Makefile consistency across a family of sibling repos by driving an interactive =claude= per project in tmux. Read-only. |
+| [[file:skills/spec-driven-port-grind/SKILL.md][spec-driven-port-grind]] | Harden a reference impl + its spec by reimplementing it across many languages as dep-free, property-tested conformance probes; round-based spec versioning (grind vN consumes v(N−1), produces vN); fold cross-port findings back. |
 
 * Install
 Skills live under =~/.claude/skills/=. Symlink each skill from this ghq clone so
