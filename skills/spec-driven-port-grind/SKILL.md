@@ -124,29 +124,37 @@ points. The output is a maintenance-economics datapoint, not just a pass/fail.
 Holding paradigm constant (typed-FP: Rust/OCaml/Haskell) to isolate *drift* from
 language difficulty, each upgraded to spec v5, gaps = beads:
 
-| Port | baseline→v5 | distance | paradigm | gaps |
-|------|-------------|----------|----------|------|
-| sajure | v4→v5 | 1 | typed (reference) | 0 (doc-only) |
-| Rust | v3→v5 | 2 | typed FP | 5 |
-| OCaml | v2→v5 | 3 | typed FP | 5 |
-| Haskell | v1→v5 | 4 | typed FP | 9 |
-| Janet↺ | v1→v4 | 3 | **untyped** | 15 |
+| Port | baseline→v5 | kind | paradigm | gaps |
+|------|-------------|------|----------|------|
+| sajure | v4→v5 | incremental (ref) | typed | 0 (doc-only) |
+| Rust | v3→v5 | incremental | typed FP | 5 |
+| OCaml | v2→v5 | incremental | typed FP | 5 |
+| Haskell | v1→v5 | incremental (~v2 base) | typed FP | 9 |
+| Ruby | v1→v5 | incremental (~v2 base) | **untyped** | 10 |
+| Janet↺ | v1→v4 | **from-scratch re-run** | untyped | 15 |
 
-Three findings, none of them "drift is linear in distance":
-1. **Paradigm dominates distance.** Typed `v1→v5` (9, dist 4) < untyped `v1→v4`
-   (15, dist 3). A type system *pre-satisfies* the structural clarifications
-   (value-type identity, exhaustiveness, deterministic encoding, CDATA round-trip),
-   so a typed port pays roughly **half** the drift tax. Keep references typed.
-2. **The typed curve is sub-linear** (5, 5, 9 across dist 2–4). Deferring four
-   versions costs ~2× a single step, not 4×: structure amortizes, only behavior
-   accrues.
-3. **There is a stable "drift set"** — the same handful of *behavioral,
-   not-type-enforceable* items recur in nearly every upgrade (Rust and OCaml
-   converged on almost the same five): value-gated flags, the auto-compact
+A Ruby *control* (untyped, same baseline as Haskell) was added precisely to test
+the tempting "types halve drift" claim — and **refuted it**. The honest findings:
+
+1. **The dominant cost is a shared behavioral "drift set"** (~5–9 items) that
+   EVERY port pays regardless of typing: value-gated flags, the auto-compact
    threshold, missing-`name`→no-oracle error, config precedence, control-byte +
-   byte-bounded errors, the pure/LLM compaction split. These are the spec items
-   most worth making impossible to miss — the type system will not catch them.
+   byte-bounded errors, the pure/LLM compaction split. Rust and OCaml converged on
+   nearly the same five. These are the spec items worth making impossible to miss.
+2. **Distance effect is modest and sub-linear** (5, 5, 9–10 across 2–4 versions):
+   deferring amortizes; structure carries forward, only behavior accrues.
+3. **Paradigm is a small COUNT effect but a real QUALITY one.** Typed vs untyped
+   at the same baseline was 9 vs 10 — a tie, NOT a halving. But the ~1–3
+   untyped-tax items are the *dangerous* ones: Ruby's value-gated flag **failed
+   open** (`"false"` enabled unsafe exposure) and `nil` collapsed `id:null` vs
+   absent. Types don't reduce the *volume* of drift; they prevent the *hazardous*
+   drift. Keep references typed for safety, not for a smaller chore.
+4. **Watch the confound:** the lone high number (Janet↺, 15) was a *from-scratch
+   re-run*, not an incremental upgrade — from-scratch ≫ upgrade, independent of
+   typing. Don't compare a re-run against an upgrade and call it a paradigm effect
+   (the mistake this control caught).
 
-Practical upshot: **stay-current is ~free (0–5 items/version); deferring is
-sub-linearly worse if you're typed, painful if you're not.** This is the argument
-for keeping a typed reference and upgrading every round.
+Practical upshot: **stay-current is ~free (0–5 items/version) and deferring is
+only sub-linearly worse** — the maintenance cost is dominated by a small, stable
+behavioral set, not by version-distance or by language paradigm. Method note: use
+a same-baseline control before attributing a difference to any one variable.
