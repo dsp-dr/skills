@@ -119,3 +119,34 @@ Two readings:
 A re-run port (e.g. Janet built at v1, re-targeted to the current spec) is the
 natural max-drift anchor; pick one port per generation for the intermediate
 points. The output is a maintenance-economics datapoint, not just a pass/fail.
+
+### Measured curve (guile-sage, spec v5)
+Holding paradigm constant (typed-FP: Rust/OCaml/Haskell) to isolate *drift* from
+language difficulty, each upgraded to spec v5, gaps = beads:
+
+| Port | baseline→v5 | distance | paradigm | gaps |
+|------|-------------|----------|----------|------|
+| sajure | v4→v5 | 1 | typed (reference) | 0 (doc-only) |
+| Rust | v3→v5 | 2 | typed FP | 5 |
+| OCaml | v2→v5 | 3 | typed FP | 5 |
+| Haskell | v1→v5 | 4 | typed FP | 9 |
+| Janet↺ | v1→v4 | 3 | **untyped** | 15 |
+
+Three findings, none of them "drift is linear in distance":
+1. **Paradigm dominates distance.** Typed `v1→v5` (9, dist 4) < untyped `v1→v4`
+   (15, dist 3). A type system *pre-satisfies* the structural clarifications
+   (value-type identity, exhaustiveness, deterministic encoding, CDATA round-trip),
+   so a typed port pays roughly **half** the drift tax. Keep references typed.
+2. **The typed curve is sub-linear** (5, 5, 9 across dist 2–4). Deferring four
+   versions costs ~2× a single step, not 4×: structure amortizes, only behavior
+   accrues.
+3. **There is a stable "drift set"** — the same handful of *behavioral,
+   not-type-enforceable* items recur in nearly every upgrade (Rust and OCaml
+   converged on almost the same five): value-gated flags, the auto-compact
+   threshold, missing-`name`→no-oracle error, config precedence, control-byte +
+   byte-bounded errors, the pure/LLM compaction split. These are the spec items
+   most worth making impossible to miss — the type system will not catch them.
+
+Practical upshot: **stay-current is ~free (0–5 items/version); deferring is
+sub-linearly worse if you're typed, painful if you're not.** This is the argument
+for keeping a typed reference and upgrading every round.
