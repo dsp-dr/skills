@@ -158,3 +158,24 @@ Practical upshot: **stay-current is ~free (0–5 items/version) and deferring is
 only sub-linearly worse** — the maintenance cost is dominated by a small, stable
 behavioral set, not by version-distance or by language paradigm. Method note: use
 a same-baseline control before attributing a difference to any one variable.
+
+## The grind as a self-improvement loop
+This method is an instance of the self-improving-agentic-system pattern surveyed
+in *Self-Improvements in Modern Agentic Systems* (Ren et al., arXiv:2607.13104).
+The mapping makes the loop's parts legible — and shows what to instrument:
+
+| Self-improvement concept | This method's instantiation |
+|--------------------------|-----------------------------|
+| feedback channel | the ports — independent probes that surface where spec/reference disagree |
+| adaptation / refinement | the harvest → spec + reference hardening (vN → vN+1) |
+| memory guiding iteration | **beads** — a round's open issues feed the next version |
+| self-monitoring vs a standard | PBT conformance against `spec.org` (no masked greens) |
+| measuring the loop | the **cost-of-drift** curve — how efficiently impls stay current |
+
+Today the loop is *human-triggered* (a person says "run vN"). The natural
+extension is to close it autonomously — agents that monitor conformance, propose
+spec clarifications / reference fixes as beads, and drive the next round — with the
+PBT gate and human review as the bounds (the "keep humans in the loop" constraint
+from the Harness Handbook, arXiv:2607.13285). Autonomy raises the stakes on the
+same-baseline-control discipline above: a self-driving loop that mis-attributes a
+difference will optimize the wrong variable.
